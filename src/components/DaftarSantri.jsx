@@ -4,7 +4,7 @@ function DaftarSantri() {
   const santri = [
     {
       id: 1,
-      nama: "YOu",
+      nama: "YOU",
       kelas: "XI",
     },
     {
@@ -29,9 +29,9 @@ function DaftarSantri() {
 
           <p>Kelas: {item.kelas}</p>
 
-          <Link to={`/santri/${item.id}`}>
+          <Link to={'/'}>
             <button>
-              Lihat Detail
+              Klik untuk Kembali ke Menu Utama
             </button>
           </Link>
 
