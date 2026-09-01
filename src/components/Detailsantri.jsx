@@ -6,20 +6,36 @@ function DetailSantri() {
   const santri = [
     {
       id: 1,
-      nama: "You",
+      nama: "Aimandd",
       kelas: "XI",
     },
     {
       id: 2,
-      nama: "and",
+      nama: "شاسا",
       kelas: "X",
     },
     {
       id: 3,
-      nama: "Me",
+      nama: "لب",
       kelas: "XII",
     },
   ];
+
+  const dataSantri = santri.find((item) => item.id === Number(id));
+
+  return (
+    <div>
+      <h1>Detail Santri</h1>
+
+      <p>ID: {dataSantri.id}</p>
+      <p>Nama: {dataSantri.nama}</p>
+      <p>Kelas: {dataSantri.kelas}</p>
+
+      <Link to="/santri">
+        <button>Kembali</button>
+      </Link>
+    </div>
+  );
 }
 
 export default DetailSantri;

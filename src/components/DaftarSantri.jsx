@@ -4,17 +4,17 @@ function DaftarSantri() {
   const santri = [
     {
       id: 1,
-      nama: "YOU",
+      nama: "Kamu",
       kelas: "XI",
     },
     {
       id: 2,
-      nama: "And",
+      nama: "Dan",
       kelas: "X",
     },
     {
       id: 3,
-      nama: "Me",
+      nama: "BROOO",
       kelas: "XII",
     },
   ];
@@ -29,9 +29,9 @@ function DaftarSantri() {
 
           <p>Kelas: {item.kelas}</p>
 
-          <Link to={'/'}>
+          <Link to={`/santri/${item.id}`}>
             <button>
-              Klik untuk Kembali ke Menu Utama
+              Lihat Detail
             </button>
           </Link>
 

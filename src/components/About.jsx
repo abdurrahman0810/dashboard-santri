@@ -12,7 +12,7 @@ function About() {
         React Router.
       </p>
 
-      <Link>
+      <Link to="/">
       <button className="">Klik untuk kembali ke dashboard</button>
       </Link>
     </div>
