@@ -20,7 +20,7 @@ function DaftarSantri() {
   ];
 
   return (
-    <div>
+    <div>           
       <h1>Daftar Santri</h1>
 
       {santri.map((item) => (
