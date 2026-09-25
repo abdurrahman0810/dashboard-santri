@@ -24,14 +24,14 @@ export default function DashboardAdmin() {
     { title: "Total Santri Mukim", value: "482", icon: Users, desc: "Santri Putra & Putri", badge: "+12 Santri Baru" },
     { title: "Target Hafalan Total", value: "1,240 Juz", icon: BookOpen, desc: "Capaian Al-Qur'an Bulan Ini", badge: "+85 Juz Pekan Ini" },
     { title: "Tingkat Kehadiran Shalat", value: "98.4%", icon: CalendarCheck, desc: "Jamaah Subuh & Isya", badge: "Sangat Baik" },
-    { title: "Rapor AI Siap Terbit", value: "156", icon: Sparkles, desc: "Evaluasi Otomatis Akhir Pekan", badge: "Siap Kirim WA" },
+    { title: "Rapor SAS Siap Terbit", value: "156", icon: Sparkles, desc: "Evaluasi Otomatis Akhir Pekan", badge: "Siap Kirim WA" },
   ];
 
   const recentHafalan = [
-    { name: "Ahmad Fauzi", class: "Kelas 11 IPA - Ula", surah: "Surah Al-Baqarah (Juz 2)", status: "Lancar (Mumtaz)", time: "10 menit yang lalu" },
-    { name: "Muhammad Zaki", class: "Kelas 10 IPS - Wustho", surah: "Surah An-Nisa (Juz 5)", status: "Muroja'ah Ulang", time: "25 menit yang lalu" },
-    { name: "Fathimah Az-Zahra", class: "Kelas 12 - Ulya", surah: "Surah Yasin & Ar-Rahman", status: "Lancar (Mumtaz)", time: "1 jam yang lalu" },
-    { name: "Ibrahim Malik", class: "Kelas 9 - Salafiyah", surah: "Juz 30 (Juz Amma Completes)", status: "Khatam Juz", time: "2 jam yang lalu" },
+    { name: "Ahmad Fauzi", class: "Kelas 11C", surah: "Surah Al-Baqarah (Juz 2)", status: "Lancar (Mumtaz)", time: "10 menit yang lalu" },
+    { name: "Muhammad Zaki", class: "Kelas 10A", surah: "Surah An-Nisa (Juz 5)", status: "Muroja'ah Ulang", time: "25 menit yang lalu" },
+    { name: "Abdurahman", class: "Kelas 12", surah: "Surah Yasin & Ar-Rahman", status: "Lancar (Mumtaz)", time: "1 jam yang lalu" },
+    { name: "Ibrahim Malik", class: "Kelas 9A", surah: "Juz 30 (Juz Amma Completes)", status: "Khatam Juz", time: "2 jam yang lalu" },
   ];
 
   return (
@@ -136,7 +136,6 @@ export default function DashboardAdmin() {
           </div>
         </div>
 
-        {/* Kolom Kanan (1 Span): Quick AI Assistant & Broadcast Tools */}
         <div className="space-y-6">
           <div className="rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50/50 to-white p-6 shadow-sm">
             <div className="flex items-center gap-2 text-emerald-900 font-bold text-base mb-2">

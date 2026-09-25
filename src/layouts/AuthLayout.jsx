@@ -1,18 +1,10 @@
+import React from "react";
 import { Outlet } from "react-router";
 
-function AuthLayout() {
+export default function AuthLayout() {
   return (
-    <div className="flex min-h-screen w-full">
-      <div className="hidden md:flex w-1/2">
-      
-      </div>
-
-      <div className="flex w-full md:w-1/2 items-center justify-center p-10">
-        <div className="w-full max-w-sm">
-          <Outlet />
-        </div>                          
-      </div>
+    <div className="min-h-screen w-full bg-slate-950 text-slate-100 antialiased flex flex-col justify-center">
+      <Outlet />
     </div>
   );
 }
-export default AuthLayout 
