@@ -31,7 +31,7 @@ export default function MyProfileAdmin() {
       <div>
         <h1 className="text-2xl font-extrabold text-slate-800">Profil Admin & Otoritas Sistem</h1>
         <p className="text-xs text-slate-500 mt-1">
-          Pengaturan akun pengasuh, kredensial login, dan otoritas pengelolaan Pondok AI Ikhtiar.
+          Pengaturan akun pengasuh, kredensial login, dan otoritas pengelolaan Pondok AL  Ikhtiar.
         </p>
       </div>
 
@@ -111,7 +111,7 @@ export default function MyProfileAdmin() {
               <div className="flex items-center gap-3">
                 <Sparkles className="h-5 w-5 text-emerald-600" />
                 <div>
-                  <p className="text-xs font-bold text-slate-800">Lisensi AI Engine Pondok</p>
+                  <p className="text-xs font-bold text-slate-800">Lisensi Engine Pondok</p>
                   <p className="text-[11px] text-slate-500">Status: Aktif (Unlimited Santri Analytics)</p>
                 </div>
               </div>

@@ -79,7 +79,7 @@ export default function SignIn() {
             </div>
             <div>
               <h2 className="text-base font-extrabold text-white tracking-wider">
-                PONDOK AI IKHTIAR
+                PONDOK  IKHTIAR
               </h2>
               <p className="text-[10px] text-emerald-400 font-semibold">
                 Sistem Informasi & Digital Santri

@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware";
 const INITIAL_USERS = [
   {
     id: 1,
-    email: "admintest@gmail.com",
+    email: "admin@gmail.com",
     password: "123",
     name: "Ustadz Abdullah, S.Pd.I",
     role: "admin",
@@ -27,13 +27,14 @@ const INITIAL_SANTRI = [
     waliId: 2,
     nis: "202601001",
     nama: "Muhammad Zaidan Al-Farisi",
-    kelas: "X - Software Engineering & AI",
+    kelas: "X - Software Engineering & ",
     kamar: "Utsman bin Affan - Room 04",
     ustadzPembimbing: "Ustadz Hanif Al-Atsari",
     targetJuz: 30,
     capaianJuz: 12,
     rataNilaiTajwid: 92,
-    statusKehadiran: "Hadir Mutlak (100%)",
+    statusKehadiran:
+      "sering Madol Halaqoh DAN TSB (Tidak Sholat Berjama'ah Di Masjid!)",
   },
 ];
 
@@ -94,7 +95,8 @@ const INITIAL_REPORTS = [
     santriId: 101,
     tanggal: "2026-09-20",
     kategori: "Kesehatan / Izin",
-    deskripsi: "Ananda sempat flu ringan dan diistirahatkan di UKS Pesantren selama 1 hari.",
+    deskripsi:
+      "Ananda Sering Nyakit.",
     status: "Selesai / Pulih",
     tindakan: "Diberikan vitamin & obat oleh tim medis pesantren.",
     isAlert: false,
@@ -126,7 +128,7 @@ export const UseAuthStore = create(
       login: (email, password) => {
         const currentUsers = get().users;
         const foundUser = currentUsers.find(
-          (u) => u.email === email && String(u.password) === String(password)
+          (u) => u.email === email && String(u.password) === String(password),
         );
 
         if (foundUser) {
@@ -210,7 +212,10 @@ export const UseAuthStore = create(
 
       // 2. FUNGSI PEMBAYARAN SPP (SYAHRIAH)
       paySpp: (sppId, metodeBayar) => {
-        const timestamp = new Date().toISOString().replace("T", " ").substring(0, 16);
+        const timestamp = new Date()
+          .toISOString()
+          .replace("T", " ")
+          .substring(0, 16);
         const refNumber = `TRX-${Math.floor(100000000 + Math.random() * 900000000)}`;
 
         set((state) => ({
@@ -223,7 +228,7 @@ export const UseAuthStore = create(
                   metodeBayar: metodeBayar,
                   buktiBayar: refNumber,
                 }
-              : item
+              : item,
           ),
         }));
         return refNumber;
@@ -244,7 +249,9 @@ export const UseAuthStore = create(
 
       // 4. GETTER HELPER
       getSantriData: (santriId) => {
-        return get().santriList.find((s) => s.id === santriId) || get().santriList[0];
+        return (
+          get().santriList.find((s) => s.id === santriId) || get().santriList[0]
+        );
       },
       getSppBySantri: (santriId) => {
         return get().sppList.filter((s) => s.santriId === santriId);
@@ -256,6 +263,6 @@ export const UseAuthStore = create(
         return get().reportsList.filter((r) => r.santriId === santriId);
       },
     }),
-    { name: "pondok-ai-ikhtiar-store" }
-  )
+    { name: "pondok-ai-ikhtiar-store" },
+  ),
 );
