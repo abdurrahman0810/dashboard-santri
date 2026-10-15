@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { UseAuthStore } from "@/pages/auth/store/UseAuthStore";
+import { z } from "zod";
 import {
   BrainCircuit,
   BookOpenCheck,
@@ -26,6 +27,29 @@ import {
   Sparkles,
 } from "lucide-react";
 
+// Schema Validasi Zod
+const signInSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email wajib diisi!")
+    .email("Format email tidak valid!"),
+  password: z
+    .string()
+    .min(1, "Kata sandi wajib diisi!")
+    .min(3, "Kata sandi minimal 3 karakter!"),
+});
+
+const signUpSchema = z.object({
+  name: z.string().min(1, "Nama lengkap wali wajib diisi!"),
+  email: z
+    .string()
+    .min(1, "Email wajib diisi!")
+    .email("Format email tidak valid!"),
+  phone: z.string().optional(),
+  santriName: z.string().min(1, "Nama calon santri wajib diisi!"),
+  password: z.string().min(6, "Kata sandi pendaftaran minimal 6 karakter!"),
+});
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const login = UseAuthStore((state) => state.login);
@@ -37,6 +61,7 @@ export default function LandingPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [authSuccessMsg, setAuthSuccessMsg] = useState("");
   const [localError, setLocalError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   // Form Input States
   const [signInEmail, setSignInEmail] = useState("");
@@ -47,7 +72,6 @@ export default function LandingPage() {
   const [signUpPhone, setSignUpPhone] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [santriName, setSantriName] = useState("");
-  const [selectedClass, setSelectedClass] = useState("SMA - Software");
 
   // 2. STATE INTERAKTIF FAQ ACCORDION
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
@@ -57,14 +81,28 @@ export default function LandingPage() {
   const [cateringPackage, setCateringPackage] = useState("premium"); // "standard" | "premium"
   const [aiLabOption, setAiLabOption] = useState(true);
 
-  // HANDLER SUBMIT SIGN IN
+  // HANDLER SUBMIT SIGN IN DENGAN ZOD
   const handleSignInSubmit = (e) => {
     e.preventDefault();
     setLocalError("");
     setAuthSuccessMsg("");
+    setFieldErrors({});
 
-    if (!signInEmail || !signInPassword) {
-      setLocalError("Harap isi Email dan Password secara lengkap!");
+    // Validasi Zod
+    const validationResult = signInSchema.safeParse({
+      email: signInEmail,
+      password: signInPassword,
+    });
+
+    if (!validationResult.success) {
+      const formattedErrors = {};
+      validationResult.error.issues.forEach((issue) => {
+        formattedErrors[issue.path[0]] = issue.message;
+      });
+      setFieldErrors(formattedErrors);
+      setLocalError(
+        validationResult.error.issues[0]?.message || "Input tidak valid!",
+      );
       return;
     }
 
@@ -79,14 +117,32 @@ export default function LandingPage() {
     }
   };
 
-  // HANDLER SUBMIT SIGN UP
+  // HANDLER SUBMIT SIGN UP DENGAN ZOD
   const handleSignUpSubmit = (e) => {
     e.preventDefault();
     setLocalError("");
     setAuthSuccessMsg("");
+    setFieldErrors({});
 
-    if (!signUpName || !signUpEmail || !signUpPassword || !santriName) {
-      setLocalError("Mohon lengkapi seluruh kolom pendaftaran!");
+    // Validasi Zod
+    const validationResult = signUpSchema.safeParse({
+      name: signUpName,
+      email: signUpEmail,
+      phone: signUpPhone,
+      santriName: santriName,
+      password: signUpPassword,
+    });
+
+    if (!validationResult.success) {
+      const formattedErrors = {};
+      validationResult.error.issues.forEach((issue) => {
+        formattedErrors[issue.path[0]] = issue.message;
+      });
+      setFieldErrors(formattedErrors);
+      setLocalError(
+        validationResult.error.issues[0]?.message ||
+          "Mohon lengkapi formulir pendaftaran!",
+      );
       return;
     }
 
@@ -201,7 +257,7 @@ export default function LandingPage() {
       {/* BANNER INFORMASI PSB */}
       <div className="bg-emerald-800 text-white text-xs font-medium py-2 px-4 text-center">
         <span>
-           Penerimaan Santri Baru (PSB) Tahun Ajaran 2026/2027 Telah Dibuka.
+          Penerimaan Santri Baru (PSB) Tahun Ajaran 2026/2027 Telah Dibuka.
           Kuota Terbatas!
         </span>
       </div>
@@ -222,9 +278,7 @@ export default function LandingPage() {
 
               <h1 className="text-3xl sm:text-5xl font-black text-slate-900 leading-tight tracking-tight">
                 Mencetak Generasi <br />
-                <span className="text-white">
-                  Hafidz Quran & Mahir IT
-                </span>
+                <span className="text-white">Hafidz Quran & Mahir IT</span>
               </h1>
 
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
@@ -304,7 +358,7 @@ export default function LandingPage() {
               <div className="rounded-2xl bg-sky-500 border border-slate-200 p-6 sm:p-7 shadow-md relative space-y-5">
                 {/* HEADER FORM & TAB SWITCHER */}
                 <div>
-                  <div className="flex items-center justify-between mb-4 ">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 font-bold">
                         <User className="h-4 w-4" />
@@ -326,6 +380,7 @@ export default function LandingPage() {
                         setAuthMode("signin");
                         setLocalError("");
                         setAuthSuccessMsg("");
+                        setFieldErrors({});
                       }}
                       className={`py-2 rounded-lg transition-all ${
                         authMode === "signin"
@@ -341,6 +396,7 @@ export default function LandingPage() {
                         setAuthMode("signup");
                         setLocalError("");
                         setAuthSuccessMsg("");
+                        setFieldErrors({});
                       }}
                       className={`py-2 rounded-lg transition-all ${
                         authMode === "signup"
@@ -373,6 +429,7 @@ export default function LandingPage() {
                   <form
                     onSubmit={handleSignInSubmit}
                     className="space-y-4 text-xs"
+                    noValidate
                   >
                     <div className="space-y-1.5">
                       <label className="text-slate-700 font-semibold block">
@@ -383,12 +440,28 @@ export default function LandingPage() {
                         <input
                           type="email"
                           value={signInEmail}
-                          onChange={(e) => setSignInEmail(e.target.value)}
+                          onChange={(e) => {
+                            setSignInEmail(e.target.value);
+                            if (fieldErrors.email) {
+                              setFieldErrors((prev) => ({
+                                ...prev,
+                                email: null,
+                              }));
+                            }
+                          }}
                           placeholder="contoh: user@gmail.com"
-                          className="w-full rounded-lg bg-slate-50 border border-slate-300 pl-9 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all"
-                          required
+                          className={`w-full rounded-lg bg-slate-50 border ${
+                            fieldErrors.email
+                              ? "border-red-500"
+                              : "border-slate-300"
+                          } pl-9 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all`}
                         />
                       </div>
+                      {fieldErrors.email && (
+                        <p className="text-[11px] text-red-700 font-medium">
+                          {fieldErrors.email}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -405,10 +478,21 @@ export default function LandingPage() {
                         <input
                           type={showPassword ? "text" : "password"}
                           value={signInPassword}
-                          onChange={(e) => setSignInPassword(e.target.value)}
+                          onChange={(e) => {
+                            setSignInPassword(e.target.value);
+                            if (fieldErrors.password) {
+                              setFieldErrors((prev) => ({
+                                ...prev,
+                                password: null,
+                              }));
+                            }
+                          }}
                           placeholder="••••••••"
-                          className="w-full rounded-lg bg-slate-50 border border-slate-300 pl-9 pr-9 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all"
-                          required
+                          className={`w-full rounded-lg bg-slate-50 border ${
+                            fieldErrors.password
+                              ? "border-red-500"
+                              : "border-slate-300"
+                          } pl-9 pr-9 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all`}
                         />
                         <button
                           type="button"
@@ -422,6 +506,11 @@ export default function LandingPage() {
                           )}
                         </button>
                       </div>
+                      {fieldErrors.password && (
+                        <p className="text-[11px] text-red-700 font-medium">
+                          {fieldErrors.password}
+                        </p>
+                      )}
                     </div>
 
                     <Button
@@ -455,6 +544,7 @@ export default function LandingPage() {
                   <form
                     onSubmit={handleSignUpSubmit}
                     className="space-y-3 text-xs"
+                    noValidate
                   >
                     <div className="space-y-1">
                       <label className="text-slate-700 font-semibold block">
@@ -465,9 +555,17 @@ export default function LandingPage() {
                         value={signUpName}
                         onChange={(e) => setSignUpName(e.target.value)}
                         placeholder="Bapak / Ibu Nama Lengkap"
-                        className="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all"
-                        required
+                        className={`w-full rounded-lg bg-slate-50 border ${
+                          fieldErrors.name
+                            ? "border-red-500"
+                            : "border-slate-300"
+                        } px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all`}
                       />
+                      {fieldErrors.name && (
+                        <p className="text-[11px] text-red-700 font-medium">
+                          {fieldErrors.name}
+                        </p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -480,9 +578,17 @@ export default function LandingPage() {
                           value={signUpEmail}
                           onChange={(e) => setSignUpEmail(e.target.value)}
                           placeholder="email@domain.com"
-                          className="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all"
-                          required
+                          className={`w-full rounded-lg bg-slate-50 border ${
+                            fieldErrors.email
+                              ? "border-red-500"
+                              : "border-slate-300"
+                          } px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all`}
                         />
+                        {fieldErrors.email && (
+                          <p className="text-[11px] text-red-700 font-medium">
+                            {fieldErrors.email}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-1">
                         <label className="text-slate-700 font-semibold block">
@@ -507,9 +613,17 @@ export default function LandingPage() {
                         value={santriName}
                         onChange={(e) => setSantriName(e.target.value)}
                         placeholder="Nama Lengkap Santri"
-                        className="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all"
-                        required
+                        className={`w-full rounded-lg bg-slate-50 border ${
+                          fieldErrors.santriName
+                            ? "border-red-500"
+                            : "border-slate-300"
+                        } px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all`}
                       />
+                      {fieldErrors.santriName && (
+                        <p className="text-[11px] text-red-700 font-medium">
+                          {fieldErrors.santriName}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1">
@@ -521,9 +635,17 @@ export default function LandingPage() {
                         value={signUpPassword}
                         onChange={(e) => setSignUpPassword(e.target.value)}
                         placeholder="Minimal 6 Karakter"
-                        className="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all"
-                        required
+                        className={`w-full rounded-lg bg-slate-50 border ${
+                          fieldErrors.password
+                            ? "border-red-500"
+                            : "border-slate-300"
+                        } px-3 py-2 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-600 focus:outline-none transition-all`}
                       />
+                      {fieldErrors.password && (
+                        <p className="text-[11px] text-red-700 font-medium">
+                          {fieldErrors.password}
+                        </p>
+                      )}
                     </div>
 
                     <Button
@@ -683,6 +805,7 @@ export default function LandingPage() {
                   Hafalan Baru dengan Musyrif.
                 </p>
               </div>
+
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                 <span className="text-teal-700 font-bold text-sm">
                   08:00 - 11:30
@@ -695,167 +818,163 @@ export default function LandingPage() {
                   Inggris Aktif.
                 </p>
               </div>
+
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                 <span className="text-emerald-700 font-bold text-sm">
                   13:30 - 16:00
                 </span>
                 <p className="font-bold text-slate-900">
-                  AI & Coding Lab Session
+                  Coding & AI Software Lab
                 </p>
                 <p className="text-slate-500 text-[11px] leading-relaxed">
-                  Praktek Pemrograman Python, Web Software Architecture, dan
-                  Eksperimen Prompt Engineering.
+                  Praktek Pemrograman Python, Web Development, serta Eksplorasi
+                  Tools AI di Laboratorium Komputer.
                 </p>
               </div>
+
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                 <span className="text-teal-700 font-bold text-sm">
-                  18:30 - 21:00
+                  18:00 - 21:00
                 </span>
                 <p className="font-bold text-slate-900">
-                  Muraja'ah & Istirahat Malam
+                  Muraja'ah & Evaluasi Malam
                 </p>
                 <p className="text-slate-500 text-[11px] leading-relaxed">
-                  Shalat Maghrib-Isya Berjamaah, Pengulangan Hafalan Malam,
-                  Evaluasi, dan Tidur Teratur.
+                  Sholat Maghrib & Isya Berjamaah, Muraja'ah Mandiri, Evaluasi
+                  Harian Musyrif, dan Istirahat.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* KALKULATOR BIAYA SPP / SYAHRIAH */}
+        {/* KALKULATOR SPP / SIMULASI SYAHRIAH */}
         <section
           id="syahriah"
           className="px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto scroll-mt-20"
         >
-          <div className="rounded-2xl bg-white p-6 sm:p-8 border border-slate-200 shadow-xs grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-                <CreditCard className="h-4 w-4 text-emerald-700" />
-                <span>Kalkulator Syahriah</span>
+          <div className="rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                  <CreditCard className="h-4 w-4" />
+                  <span>Kalkulator Pembiayaan</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mt-0.5">
+                  Simulasi Biaya SPP (Syahriah) Bulanan
+                </h3>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900">
-                Simulasi SPP Bulanan Santri
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Seluruh komponen biaya pendidikan terperinci secara rinci di
-                Portal Wali Santri. Transparan tanpa biaya tersembunyi.
+              <p className="text-xs text-slate-500 max-w-md">
+                Estimasi transparan biaya bulanan santri termasuk fasilitas
+                asrama, konsumsi, dan laboratorium teknologi.
               </p>
-
-              <div className="space-y-3 pt-1 text-xs">
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-slate-700 font-medium">
-                    SPP Pokok (Asrama AC, Makan 3x, Pengajar & Kitab):
-                  </span>
-                  <span className="font-bold text-slate-900">
-                    Rp 1.500.000 / bln
-                  </span>
-                </div>
-
-                {/* CONTROLS SIMULATOR */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                  <p className="font-bold text-slate-900">
-                    Opsi Tambahan Layanan Santri:
-                  </p>
-
-                  <div className="flex items-center justify-between">
-                    <label className="text-slate-700 text-xs flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={laundryService}
-                        onChange={(e) => setLaundryService(e.target.checked)}
-                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
-                      />
-                      <span>
-                        Layanan Laundry Pakaian & Seragam (+ Rp 150.000)
-                      </span>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-1 border-t border-slate-200">
-                    <label className="text-slate-700 text-xs flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={aiLabOption}
-                        onChange={(e) => setAiLabOption(e.target.checked)}
-                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
-                      />
-                      <span>
-                        Akses Kuota Cloud Lab AI & Server Compute (+ Rp 200.000)
-                      </span>
-                    </label>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-200 space-y-1.5">
-                    <p className="text-slate-700 font-semibold">
-                      Paket Katering Santri:
-                    </p>
-                    <div className="flex gap-4">
-                      <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
-                        <input
-                          type="radio"
-                          name="catering"
-                          value="standard"
-                          checked={cateringPackage === "standard"}
-                          onChange={() => setCateringPackage("standard")}
-                          className="text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <span>Standar Pesantren</span>
-                      </label>
-                      <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
-                        <input
-                          type="radio"
-                          name="catering"
-                          value="premium"
-                          checked={cateringPackage === "premium"}
-                          onChange={() => setCateringPackage("premium")}
-                          className="text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <span>Nutrisi Premium (+ Rp 350.000)</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* RINGKASAN BIAYA */}
-            <div className="lg:col-span-5 bg-emerald-900 text-white p-6 rounded-2xl space-y-4 shadow-sm">
-              <div className="flex items-center justify-between border-b border-emerald-800 pb-3">
-                <span className="text-xs text-emerald-200 font-medium">
-                  Estimasi Biaya Syahriah
-                </span>
-                <span className="text-[10px] bg-emerald-800 text-emerald-200 px-2 py-0.5 rounded">
-                  Per Bulan
-                </span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4 text-xs">
+                {/* Paket Catering */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <label className="font-bold text-slate-800 block">
+                    Paket Konsumsi / Catering Santri:
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCateringPackage("standard")}
+                      className={`p-3 rounded-lg border text-left transition-all ${
+                        cateringPackage === "standard"
+                          ? "bg-emerald-50 border-emerald-600 text-emerald-900 font-bold"
+                          : "bg-white border-slate-200 text-slate-600"
+                      }`}
+                    >
+                      <span className="block text-xs">Standard</span>
+                      <span className="text-[10px] text-slate-500">
+                        3x Makan Sehat Harian
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCateringPackage("premium")}
+                      className={`p-3 rounded-lg border text-left transition-all ${
+                        cateringPackage === "premium"
+                          ? "bg-emerald-50 border-emerald-600 text-emerald-900 font-bold"
+                          : "bg-white border-slate-200 text-slate-600"
+                      }`}
+                    >
+                      <span className="block text-xs">Premium (+Rp 350rb)</span>
+                      <span className="text-[10px] text-slate-500">
+                        Menu Nutrisi & Buah Segar
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Checkbox Options */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={laundryService}
+                      onChange={(e) => setLaundryService(e.target.checked)}
+                      className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <div>
+                      <span className="font-semibold text-slate-800 block">
+                        Layanan Laundry (+Rp 150rb)
+                      </span>
+                      <span className="text-[10px] text-slate-500">
+                        Cuci & Setrika Pakaian
+                      </span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={aiLabOption}
+                      onChange={(e) => setAiLabOption(e.target.checked)}
+                      className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <div>
+                      <span className="font-semibold text-slate-800 block">
+                        Akses AI Lab & Cloud (+Rp 200rb)
+                      </span>
+                      <span className="text-[10px] text-slate-500">
+                        Server GPU & Cloud API
+                      </span>
+                    </div>
+                  </label>
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <p className="text-xs text-emerald-200">
-                  Total Pembayaran Bulanan:
-                </p>
-                <p className="text-3xl font-black text-white">
+              {/* Box Output Total */}
+              <div className="lg:col-span-5 bg-emerald-900 text-white p-6 rounded-2xl space-y-4 shadow-sm text-center">
+                <span className="text-xs text-emerald-200 font-semibold tracking-wide uppercase">
+                  Total Estimasi SPP Bulanan
+                </span>
+                <div className="text-3xl sm:text-4xl font-black text-emerald-300">
                   Rp {calculateTotalSpp().toLocaleString("id-ID")}
+                  <span className="text-xs text-emerald-200 font-normal">
+                    /bln
+                  </span>
+                </div>
+                <p className="text-[11px] text-emerald-200/80 leading-relaxed">
+                  Sudah termasuk SPP Pokok, Asrama, Pembinaan Tahfidz, dan
+                  Fasilitas Pesantren. Pembayaran dilakukan via BSI Direct.
                 </p>
+                <a
+                  href="#auth-portal"
+                  className="inline-flex items-center justify-center w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition-all gap-1.5"
+                >
+                  <span>Daftar Wali & Bayar SPP</span>
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </div>
-
-              <div className="text-[11px] text-emerald-200/80 leading-relaxed border-t border-emerald-800 pt-3 space-y-1">
-                <p>✓ Pembayaran otomatis via Bank Syariah Indonesia (BSI)</p>
-                <p>✓ Bukti kuitansi digital langsung diterbitkan sistem</p>
-                <p>✓ Bebas biaya pendaftaran ulang tahunan</p>
-              </div>
-
-              <a
-                href="#auth-portal"
-                className="block text-center w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs py-2.5 rounded-lg transition-colors mt-2"
-              >
-                Daftar & Kunci Kuota Santri
-              </a>
             </div>
           </div>
         </section>
 
-        {/* FAQ ACCORDION SECTION */}
+        {/* SECTION FAQ ACCORDION */}
         <section
           id="faq"
           className="px-4 sm:px-8 lg:px-12 max-w-4xl mx-auto scroll-mt-20"
@@ -863,10 +982,10 @@ export default function LandingPage() {
           <div className="text-center space-y-2 mb-8">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
               <HelpCircle className="h-4 w-4 text-emerald-700" />
-              <span>Pertanyaan Umum</span>
+              <span>Pertanyaan Populer</span>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">
-              Tanya Jawab seputar Pondok Al-Ikhtiar
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              Pertanyaan Sering Diajukan (FAQ)
             </h2>
           </div>
 
@@ -876,25 +995,23 @@ export default function LandingPage() {
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs transition-all"
+                  className="rounded-xl bg-white border border-slate-200 overflow-hidden transition-all"
                 >
                   <button
                     type="button"
-                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    className="w-full p-4 text-left flex justify-between items-center gap-4 hover:bg-slate-50/80 transition-colors"
+                    onClick={() => setOpenFaqIndex(isOpen ? -1 : index)}
+                    className="w-full p-4 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-slate-900 hover:bg-slate-50"
                   >
-                    <span className="text-xs sm:text-sm font-bold text-slate-800">
-                      {faq.q}
-                    </span>
+                    <span>{faq.q}</span>
                     {isOpen ? (
-                      <ChevronUp className="h-4 w-4 text-emerald-700 shrink-0" />
+                      <ChevronUp className="h-4 w-4 text-emerald-600 shrink-0" />
                     ) : (
                       <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
                     )}
                   </button>
 
                   {isOpen && (
-                    <div className="p-4 pt-0 text-xs text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/50">
+                    <div className="px-4 pb-4 pt-1 text-xs text-slate-600 leading-relaxed border-t border-slate-100">
                       {faq.a}
                     </div>
                   )}
@@ -903,102 +1020,74 @@ export default function LandingPage() {
             })}
           </div>
         </section>
+
+        {/* FOOTER */}
+        <footer className="border-t border-emerald-700/30 pt-10 pb-8 text-white/90 text-xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div className="space-y-3 md:col-span-2">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-emerald-700 font-bold">
+                  <BrainCircuit className="h-5 w-5" />
+                </div>
+                <span className="font-bold text-base text-white">
+                  Pondok Al-Ikhtiar
+                </span>
+              </div>
+              <p className="text-emerald-100/80 text-xs leading-relaxed max-w-sm">
+                Pondok Pesantren Tahfidz Qur'an & AI Technology Modern.
+                Membentuk santri berakhlak mulia, berjiwa Rabbani, dan menguasai
+                teknologi masa depan.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-bold text-white text-sm">Kontak Pesantren</h4>
+              <div className="space-y-1.5 text-emerald-100/80 text-xs">
+                <p className="flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5" /> 0812-3456-7890
+                </p>
+                <p className="flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5" /> psb@al-ikhtiar.sch.id
+                </p>
+                <p className="flex items-center gap-2">
+                  <MapPin className="h-3.5 w-3.5" /> Bogor, Jawa Barat
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-bold text-white text-sm">Navigasi Cepat</h4>
+              <ul className="space-y-1 text-emerald-100/80">
+                <li>
+                  <a href="#keunggulan" className="hover:text-white">
+                    Keunggulan
+                  </a>
+                </li>
+                <li>
+                  <a href="#jadwal" className="hover:text-white">
+                    Jadwal Santri
+                  </a>
+                </li>
+                <li>
+                  <a href="#syahriah" className="hover:text-white">
+                    Simulasi SPP
+                  </a>
+                </li>
+                <li>
+                  <a href="#faq" className="hover:text-white">
+                    FAQ
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-4 border-t border-emerald-700/40 text-center text-[11px] text-emerald-200/60">
+            © 2026 Pondok Al-Ikhtiar Tahfidz & AI Technology. All Rights
+            Reserved.
+          </div>
+        </footer>
       </div>
-
-      {/* FOOTER */}
-      <footer className="bg-slate-900 text-slate-400 text-xs mt-20 border-t border-slate-800 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="space-y-3 md:col-span-2">
-            <div className="flex items-center gap-2 text-white font-bold text-base">
-              <BrainCircuit className="h-5 w-5 text-emerald-500" />
-              <span>Pondok Pesantren Al-Ikhtiar</span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              Lembaga Pendidikan Islam Terpadu yang mencetak generasi huffazh
-              Al-Qur'an bersanad dan praktisi teknologi informasi masa depan.
-            </p>
-            <div className="space-y-1 text-slate-400 text-xs pt-1">
-              <p className="flex items-center gap-2">
-                <MapPin className="h-3.5 w-3.5 text-emerald-500 shrink-0" /> Jl.
-                Al-Ikhtiar No. 45, Kompleks Islamic Center
-              </p>
-              <p className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-emerald-500 shrink-0" />{" "}
-                Hubungi Kesantrian: +62 812-3456-7890
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-3">Tautan Cepat</h4>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="#keunggulan"
-                  className="hover:text-white transition-colors"
-                >
-                  Pilar Kurikulum
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#jadwal"
-                  className="hover:text-white transition-colors"
-                >
-                  Jadwal Harian Santri
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#syahriah"
-                  className="hover:text-white transition-colors"
-                >
-                  Simulasi SPP
-                </a>
-              </li>
-              <li>
-                <a href="#faq" className="hover:text-white transition-colors">
-                  FAQ PSB
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-3">Sistem Portal</h4>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="#auth-portal"
-                  className="hover:text-white transition-colors"
-                >
-                  Login Wali Santri
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#auth-portal"
-                  className="hover:text-white transition-colors"
-                >
-                  Setoran Tahfidz Realtime
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#auth-portal"
-                  className="hover:text-white transition-colors"
-                >
-                  Pembayaran Syahriah BSI
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-8 pt-6 border-t border-slate-800 text-center text-[11px] text-slate-500">
-          © 2026 Pondok Pesantren Al-Ikhtiar. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
